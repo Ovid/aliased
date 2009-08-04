@@ -32,12 +32,8 @@ sub _make_alias {
 
     $alias ||= _get_alias($package);
 
-    local $SIG{__DIE__};
-    eval qq{
-        package $callpack;
-        sub $alias () { '$package' }
-    };
-    die $@ if $@;
+    no strict 'refs';
+    *{ join q{::} => $callpack, $alias } = sub () { $package };
 }
 
 sub _load_alias {
