@@ -1,0 +1,19 @@
+---
+name: aliased
+version: 0.21
+author:
+  - 'Curtis "Ovid" Poe <ovid@cpan.org>'
+abstract: Use shorter versions of class names.
+license: perl
+resources:
+  license: http://dev.perl.org/licenses/
+requires:
+  Test::More: 0
+provides:
+  aliased:
+    file: lib/aliased.pm
+    version: 0.21
+generated_by: Module::Build version 0.2808
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2

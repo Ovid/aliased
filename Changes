@@ -1,0 +1,13 @@
+Revision history for Perl extension aka.
+
+0.21  29 March, 2007
+      Applied $SIG{__DIE__} patch from Schwern and tightened up the test. 
+
+0.12  23 August, 2005
+      Add pod and pod coverage tests
+      Added patch from Schwern to allow aliasing to a scalar
+
+0.10  Wed Jan 5
+      Changed name to 'aka' due to general consensus on the
+      module-authors list.
+      
