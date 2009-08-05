@@ -1,5 +1,5 @@
 package aliased;
-$VERSION = '0.21';
+$VERSION = '0.30';
 
 require Exporter;
 @ISA    = qw(Exporter);
@@ -39,15 +39,21 @@ sub _make_alias {
 sub _load_alias {
     my ( $package, $callpack, @import ) = @_;
 
-    my $sigdie;
+    # We don't localize $SIG{__DIE__} here because we need to be careful about
+    # restoring its value if there is a failure.  Very, very tricky.
+    my $sigdie = $SIG{__DIE__};
     {
-        local $SIG{__DIE__};
-        my $code = @import == 0
+        my $code =
+          @import == 0
           ? "package $callpack; use $package;"
           : "package $callpack; use $package (\@import)";
         eval $code;
-        die $@ if $@;
-        $sigdie = $SIG{__DIE__};
+        if ( my $error = $@ ) {
+            $SIG{__DIE__} = $sigdie;
+            die $error;
+        }
+        $sigdie = $SIG{__DIE__}
+          if defined $SIG{__DIE__};
     }
 
     # Make sure a global $SIG{__DIE__} makes it out of the localization.
@@ -69,6 +75,10 @@ __END__
 =head1 NAME
 
 aliased - Use shorter versions of class names.
+
+=head1 VERSION
+
+0.30
 
 =head1 SYNOPSIS
 

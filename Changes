@@ -1,5 +1,12 @@
 Revision history for Perl extension aka.
 
+0.30  5 August, 2009
+      Applied changes from Florian Ragwitz to ensure that we preserve the 
+      name of the package the alias is defined in.
+
+0.22  12 February, 2008
+      Preserve $SIG{__DIE__} behavior just as if aliased had not been used.
+
 0.21  29 March, 2007
       Applied $SIG{__DIE__} patch from Schwern and tightened up the test. 
 

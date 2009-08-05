@@ -14,10 +14,39 @@ BEGIN {
 use aliased "Test::More";
 use aliased "HasSigDie";
 
-plan(tests => 2);
+plan(tests => 9);
 
 is ref $SIG{__DIE__}, "CODE",
   '$SIG{__DIE__} handlers should not be destroyed';
 
 is $SIG{__DIE__}->(), 'whee!',
   '... and should behave as expected';
+
+eval "use aliased 'BadSigDie'";
+is ref $SIG{__DIE__}, "CODE",
+  'A bad load should not break $SIG{__DIE__} handlers';
+
+is $SIG{__DIE__}->(), 'whee!',
+  '... and they should retain their value';
+
+eval "use aliased 'NoSigDie'";
+is ref $SIG{__DIE__}, "CODE",
+  'Loading code without sigdie handlers should succeed';
+
+is $SIG{__DIE__}->(), 'whee!',
+  '... and the sigdie handlers should retain their value';
+
+{
+    local $SIG{__DIE__};
+    delete $INC{'NoSigDie.pm'};
+    eval "use aliased 'NoSigDie' => 'NoSigDie2'";
+    ok ! ref $SIG{__DIE__},
+      'Loading code without sigdie handlers should succeed';
+    delete $INC{'HasSigDie.pm'};
+    eval "use aliased 'HasSigDie' => 'HasSigDie2'";
+    is ref $SIG{__DIE__}, "CODE",
+      'New $SIG{__DIE__} handlers should be loaded';
+
+    is $SIG{__DIE__}->(), 'whee!',
+      '... and should behave as expected';
+}
