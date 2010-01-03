@@ -5,9 +5,11 @@ Makefile.PL
 MANIFEST
 META.yml			Module meta-data (added by MakeMaker)
 README
-t/10aliased.t
-t/20import.t
-t/30sigdie.t
+t/aliased.t
+t/import.t
+t/sigdie.t
+t/export.t
+t/prefix
 t/lib/HasSigDie.pm
 t/lib/BadSigDie.pm
 t/lib/NoSigDie.pm
@@ -15,5 +17,5 @@ t/lib/Really/Long/Module/Conflicting/Name.pm
 t/lib/Really/Long/Module/Name.pm
 t/lib/Really/Long/Name.pm
 t/lib/Really/Long/PackageName.pm
-t/pod-coverage.t
-t/pod.t
+xt/author/pod-coverage.t
+xt/author/pod.t

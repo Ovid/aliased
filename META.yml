@@ -6,14 +6,16 @@ author:
 abstract: Use shorter versions of class names.
 license: perl
 resources:
-  license: ~
-requires:
+  license: http://dev.perl.org/licenses/
+build_requires:
   Test::More: 0
+configure_requires:
+  Module::Build: 0.35
 provides:
   aliased:
     file: lib/aliased.pm
     version: 0.30
-generated_by: Module::Build version 0.32
+generated_by: Module::Build version 0.35
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.2.html
-  version: 1.2
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4

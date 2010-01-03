@@ -1,5 +1,10 @@
 Revision history for Perl extension aka.
 
+0.30_01 January 3, 2010
+      Added prefix() function. [rt#48289]
+      Moved Test::More to build_requires [rt#48926]
+      Moved author tests to xt/author
+
 0.30  5 August, 2009
       Applied changes from Florian Ragwitz to ensure that we preserve the 
       name of the package the alias is defined in.
