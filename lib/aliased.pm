@@ -1,5 +1,7 @@
 package aliased;
-$VERSION = '0.30_01';
+
+our $VERSION = '0.30_01';
+$VERSION = eval $VERSION;
 
 require Exporter;
 @ISA    = qw(Exporter);

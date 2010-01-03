@@ -1,6 +1,6 @@
 ---
 name: aliased
-version: 0.30
+version: 0.30_01
 author:
   - 'Curtis "Ovid" Poe <ovid@cpan.org>'
 abstract: Use shorter versions of class names.
@@ -14,7 +14,7 @@ configure_requires:
 provides:
   aliased:
     file: lib/aliased.pm
-    version: 0.30
+    version: 0.30_01
 generated_by: Module::Build version 0.35
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html

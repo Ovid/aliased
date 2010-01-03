@@ -9,7 +9,7 @@ t/aliased.t
 t/import.t
 t/sigdie.t
 t/export.t
-t/prefix
+t/prefix.t
 t/lib/HasSigDie.pm
 t/lib/BadSigDie.pm
 t/lib/NoSigDie.pm
