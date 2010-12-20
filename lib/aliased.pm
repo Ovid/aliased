@@ -23,8 +23,86 @@ sub import {
     }
 
     my $callpack = caller(0);
-    _load_alias( $package, $callpack, @import );
-    _make_alias( $package, $callpack, $alias );
+    my ( $pref, $aref ) = ( ref($package), ref($alias) );
+
+    # first param is a scalar, hopefully a package name
+    if ( $pref eq '' ) {
+        if ( $aref eq '' ) {
+
+            # use aliased
+            #   'Some::Pkg::Mod' => 'alias', qw/imp1 imp2 imp3/;
+            # i.e., the "current" way
+            _load_alias( $package, $callpack, @import );
+            _make_alias( $package, $callpack, $alias );
+        }
+        elsif ( $aref eq 'ARRAY' ) {
+
+            #use Data::Dumper; warn 'dump alias = '.Dumper($alias);
+            # use aliased 'Some::Pkg' => [ 'Mod1', 'Mod2', ... ];
+            # create aliases for Some::Pkg::Mod1, Some::Pkg::Mod2, ...
+            # *** NO IMPORTS THIS WAY!!! ***
+            map {
+                #warn qq(making alias for ${package}::$_);
+                _load_alias( $package . '::' . $_, $callpack );
+                _make_alias( $package . '::' . $_, $callpack );
+            } @{$alias};
+        }
+        else {
+            _croak 'Invalid second parameter!';
+        }
+        return;
+    }
+
+    # dies if it is any reference but a hash reference
+    _croak q{Invalid first parameter!} if $pref ne 'HASH';
+
+    my $base_prefix = '';
+    if ( exists $package->{base} && $package->{base} ne '' ) {
+        $base_prefix = $package->{base} . '::';
+        delete $package->{base};
+    }
+
+    # if there is no 'base' key in the hash, then there is no prefixing
+    # and the keys will provide the full long names
+
+    foreach my $name ( keys %{$package} ) {
+        if ( $name eq 'modules' ) {
+
+            # use aliased {
+            #   base    => 'Some::Base::Pkg',
+            #   modules => [ 'Mod1', 'Mod2', ... ],
+            # }
+            # thus aliasing Some::Base::Pkg::Mod1, Some::Base::Pkg::Mod2, ...
+            # *** NO IMPORTS THIS WAY!!! ***
+            _croak q{Parameter 'modules' must be an array reference!}
+              unless ref( $package->{modules} ) eq 'ARRAY';
+            grep {
+                _load_alias( $base_prefix . $_, $callpack );
+                _make_alias( $base_prefix . $_, $callpack );
+            } @{ $package->{modules} };
+            next;
+        }
+
+        # use aliased {
+        #   base => 'Some::Base::Pkg',
+        #   Mod1 => {
+        #       alias  => 'MM',
+        #       import => [ qw/imp1 imp2 imp3/ ],
+        #   },
+        # }
+        my $alias_ref = $package->{$name};
+        #use Data::Dumper; warn 'alias_ref = ' . Dumper($alias_ref);
+        _croak q{Name '} . $name . q{' must point to a hash reference!}
+          unless ref($alias_ref) eq 'HASH';
+        _croak q{The parameter 'imports' must be an array reference!}
+          if exists $alias_ref->{imports}
+              && ref( $alias_ref->{imports} ) ne 'ARRAY';
+        my @hash_import =
+          exists $alias_ref->{imports} ? @{ $alias_ref->{imports} } : ();
+
+        _load_alias( $base_prefix . $name, $callpack, @hash_import );
+        _make_alias( $base_prefix . $name, $callpack, $alias_ref->{alias} );
+    }
 }
 
 sub _get_alias {
@@ -36,6 +114,8 @@ sub _get_alias {
 sub _make_alias {
     my ( $package, $callpack, $alias ) = @_;
 
+    #use Data::Dumper;
+    #$,=', '; warn '_make_alias with ' . Dumper( $package, $callpack, $alias );
     $alias ||= _get_alias($package);
 
     no strict 'refs';
@@ -53,6 +133,7 @@ sub _load_alias {
           @import == 0
           ? "package $callpack; use $package;"
           : "package $callpack; use $package (\@import)";
+        #warn 'code = '. $code;
         eval $code;
         if ( my $error = $@ ) {
             $SIG{__DIE__} = $sigdie;

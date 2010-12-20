@@ -10,6 +10,9 @@ t/import.t
 t/sigdie.t
 t/export.t
 t/prefix.t
+t/multi_arrayref.t
+t/multi_hash_array.t
+t/multi_hash_hash.t
 t/lib/HasSigDie.pm
 t/lib/BadSigDie.pm
 t/lib/NoSigDie.pm
