@@ -8,4 +8,6 @@ sub import {
     }
 }
 
+sub new { bless {} => shift }
+
 1;
