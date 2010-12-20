@@ -15,7 +15,7 @@ sub _croak {
 }
 
 sub import {
-    my ( $class, $package, $alias, @import ) = @_;
+    my ( $class, $pkg, $alias, @imports ) = @_;
 
     if ( @_ <= 1 ) {
         $class->export_to_level(1);
@@ -23,17 +23,17 @@ sub import {
     }
 
     my $callpack = caller(0);
-    my ( $pref, $aref ) = ( ref($package), ref($alias) );
+    my ( $pref, $aref ) = ( ref($pkg), ref($alias) );
 
-    # first param is a scalar, hopefully a package name
+    # first param is a scalar, hopefully a pkg name
     if ( $pref eq '' ) {
         if ( $aref eq '' ) {
 
             # use aliased
             #   'Some::Pkg::Mod' => 'alias', qw/imp1 imp2 imp3/;
             # i.e., the "current" way
-            _load_alias( $package, $callpack, @import );
-            _make_alias( $package, $callpack, $alias );
+            _load_alias( $pkg, $callpack, [@imports] );
+            _make_alias( $pkg, $callpack, $alias );
         }
         elsif ( $aref eq 'ARRAY' ) {
 
@@ -42,9 +42,10 @@ sub import {
             # create aliases for Some::Pkg::Mod1, Some::Pkg::Mod2, ...
             # *** NO IMPORTS THIS WAY!!! ***
             map {
-                #warn qq(making alias for ${package}::$_);
-                _load_alias( $package . '::' . $_, $callpack );
-                _make_alias( $package . '::' . $_, $callpack );
+
+                #warn qq(making alias for ${pkg}::$_);
+                _load_alias( $pkg . '::' . $_, $callpack );
+                _make_alias( $pkg . '::' . $_, $callpack );
             } @{$alias};
         }
         else {
@@ -57,15 +58,15 @@ sub import {
     _croak q{Invalid first parameter!} if $pref ne 'HASH';
 
     my $base_prefix = '';
-    if ( exists $package->{base} && $package->{base} ne '' ) {
-        $base_prefix = $package->{base} . '::';
-        delete $package->{base};
+    if ( exists $pkg->{base} && $pkg->{base} ne '' ) {
+        $base_prefix = $pkg->{base} . '::';
+        delete $pkg->{base};
     }
 
     # if there is no 'base' key in the hash, then there is no prefixing
     # and the keys will provide the full long names
 
-    foreach my $name ( keys %{$package} ) {
+    foreach my $name ( keys %{$pkg} ) {
         if ( $name eq 'modules' ) {
 
             # use aliased {
@@ -75,11 +76,11 @@ sub import {
             # thus aliasing Some::Base::Pkg::Mod1, Some::Base::Pkg::Mod2, ...
             # *** NO IMPORTS THIS WAY!!! ***
             _croak q{Parameter 'modules' must be an array reference!}
-              unless ref( $package->{modules} ) eq 'ARRAY';
+              unless ref( $pkg->{modules} ) eq 'ARRAY';
             grep {
                 _load_alias( $base_prefix . $_, $callpack );
                 _make_alias( $base_prefix . $_, $callpack );
-            } @{ $package->{modules} };
+            } @{ $pkg->{modules} };
             next;
         }
 
@@ -87,54 +88,89 @@ sub import {
         #   base => 'Some::Base::Pkg',
         #   Mod1 => {
         #       alias  => 'MM',
-        #       import => [ qw/imp1 imp2 imp3/ ],
+        #       version => 'x.yyy',
+        #       imports => [ qw/imp1 imp2 imp3/ ],
         #   },
         # }
-        my $alias_ref = $package->{$name};
+        my $alias_ref = $pkg->{$name};
+
         #use Data::Dumper; warn 'alias_ref = ' . Dumper($alias_ref);
         _croak q{Name '} . $name . q{' must point to a hash reference!}
           unless ref($alias_ref) eq 'HASH';
         _croak q{The parameter 'imports' must be an array reference!}
           if exists $alias_ref->{imports}
               && ref( $alias_ref->{imports} ) ne 'ARRAY';
-        my @hash_import =
-          exists $alias_ref->{imports} ? @{ $alias_ref->{imports} } : ();
+        #my @hash_imports =
+        #  exists $alias_ref->{imports} ? @{ $alias_ref->{imports} } : ();
 
-        _load_alias( $base_prefix . $name, $callpack, @hash_import );
+        # ( $pkg, $callpack, $version, $imports );
+        _load_alias(
+            {
+                pkg      => $base_prefix . $name,
+                callpack => $callpack,
+                imports  => $alias_ref->{imports},
+                version  => $alias_ref->{version},
+            }
+        );
         _make_alias( $base_prefix . $name, $callpack, $alias_ref->{alias} );
     }
 }
 
 sub _get_alias {
-    my $package = shift;
-    $package =~ s/.*(?:::|')//;
-    return $package;
+    my $pkg = shift;
+    $pkg =~ s/.*(?:::|')//;
+    return $pkg;
 }
 
 sub _make_alias {
-    my ( $package, $callpack, $alias ) = @_;
+    my ( $pkg, $callpack, $alias );
+    if ( ref( $_[0] ) eq 'HASH' ) {
+        ( $pkg, $callpack, $alias ) =
+          map { $_[0]->{$_} } qw/pkg callpack alias/;
+    }
+    else {
+        ( $pkg, $callpack, $alias ) = @_;
+    }
 
     #use Data::Dumper;
-    #$,=', '; warn '_make_alias with ' . Dumper( $package, $callpack, $alias );
-    $alias ||= _get_alias($package);
+    #$,=', '; warn '_make_alias with ' . Dumper( $pkg, $callpack, $alias );
+    $alias ||= _get_alias($pkg);
 
     no strict 'refs';
-    *{ join q{::} => $callpack, $alias } = sub () { $package };
+    *{ join q{::} => $callpack, $alias } = sub () { $pkg };
 }
 
 sub _load_alias {
-    my ( $package, $callpack, @import ) = @_;
+    my ( $pkg, $callpack, $version, $imports );
+    if ( ref( $_[0] ) eq 'HASH' ) {
+        ( $pkg, $callpack, $version, $imports ) =
+          map { $_[0]->{$_} } qw/pkg callpack version imports/;
+    }
+    else {
+        ( $pkg, $callpack, $imports ) = @_;
+    }
 
+    $version = '' unless defined $version;
+    $imports = [] unless defined $imports;
+    my @imports = @{ $imports };
+
+    #use Data::Dumper; warn Dumper( $pkg, $callpack, $version, $imports );
     # We don't localize $SIG{__DIE__} here because we need to be careful about
     # restoring its value if there is a failure.  Very, very tricky.
     my $sigdie = $SIG{__DIE__};
     {
+        #my $code = "package $callpack; use $pkg";
+        #$code .= " $version" if $version;
+        #$code .= " (\@imports)" if @imports != 0;
+        #$code .= ';';
         my $code =
-          @import == 0
-          ? "package $callpack; use $package;"
-          : "package $callpack; use $package (\@import)";
+          @imports == 0
+          ? "package $callpack; use $pkg $version;"
+          : "package $callpack; use $pkg $version (\@imports)";
+
         #warn 'code = '. $code;
         eval $code;
+        #warn 'past eval';
         if ( my $error = $@ ) {
             $SIG{__DIE__} = $sigdie;
             _croak($error);
@@ -145,14 +181,14 @@ sub _load_alias {
 
     # Make sure a global $SIG{__DIE__} makes it out of the localization.
     $SIG{__DIE__} = $sigdie if defined $sigdie;
-    return $package;
+    return $pkg;
 }
 
 sub alias {
-    my ( $package, @import ) = @_;
+    my ( $pkg, @imports ) = @_;
 
     my $callpack = scalar caller(0);
-    return _load_alias( $package, $callpack, @import );
+    return _load_alias( $pkg, $callpack, [@imports] );
 }
 
 sub prefix {
