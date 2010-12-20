@@ -2,7 +2,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 16;
+use Test::More tests => 17;
 
 #use Test::More qw/no_plan/;
 
@@ -25,6 +25,7 @@ like $@, qr{Can't locate No/Such/Module.pm in \@INC},
   '... and it should have an appropriate error message';
 
 use aliased 'Really::Long::Module::Name';
+ok defined &main::Name, '... the alias is created';
 my $name = Name->new;
 isa_ok $name, 'Really::Long::Module::Name', '... and the object it returns';
 
