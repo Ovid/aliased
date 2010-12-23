@@ -87,7 +87,7 @@ sub import {
         # use aliased {
         #   base => 'Some::Base::Pkg',
         #   Mod1 => {
-        #       alias  => 'MM',
+        #       alias   => 'MM',
         #       version => 'x.yyy',
         #       imports => [ qw/imp1 imp2 imp3/ ],
         #   },
@@ -155,14 +155,11 @@ sub _load_alias {
     my @imports = @{ $imports };
 
     #use Data::Dumper; warn Dumper( $pkg, $callpack, $version, $imports );
+
     # We don't localize $SIG{__DIE__} here because we need to be careful about
     # restoring its value if there is a failure.  Very, very tricky.
     my $sigdie = $SIG{__DIE__};
     {
-        #my $code = "package $callpack; use $pkg";
-        #$code .= " $version" if $version;
-        #$code .= " (\@imports)" if @imports != 0;
-        #$code .= ';';
         my $code =
           @imports == 0
           ? "package $callpack; use $pkg $version;"
