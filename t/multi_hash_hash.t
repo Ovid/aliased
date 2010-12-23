@@ -23,7 +23,6 @@ use aliased {
     'Name'         => {},
     'Module::Name' => { alias => 'O::Name', },
 };
-is $@, '', '... it can use the module with hash and array';
 ok defined &main::Name,        '... creates proper functions';
 ok defined &main::PackageName, '... creates proper functions';
 
@@ -34,6 +33,9 @@ isa_ok $name, 'Really::Long::Name', '... and the object it returns';
 
 my $pname = PackageName->new;
 isa_ok $pname, 'Really::Long::PackageName', '... and the object it returns';
+
+my $oname = O::Name->new;
+isa_ok $oname, 'Really::Long::Module::Name', '... and the object it returns';
 
 use aliased {
     base => 'Really::Long::Module',
