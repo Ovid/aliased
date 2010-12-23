@@ -13,3 +13,6 @@ Debian*
 README
 aliased-*
 *.bs
+Build
+MYMETA.yml
+_build
