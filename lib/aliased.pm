@@ -60,13 +60,13 @@ sub import {
     my $base_prefix = '';
     if ( exists $pkg->{base} && $pkg->{base} ne '' ) {
         $base_prefix = $pkg->{base} . '::';
-        delete $pkg->{base};
     }
 
     # if there is no 'base' key in the hash, then there is no prefixing
     # and the keys will provide the full long names
 
     foreach my $name ( keys %{$pkg} ) {
+        next if $name eq 'base';
         if ( $name eq 'modules' ) {
 
             # use aliased {
@@ -228,6 +228,31 @@ aliased - Use shorter versions of class names.
   use aliased 'My::Company::Namespace::Preferred::Customer' => 'Preferred';
   my $pref = Preferred->new;
 
+  # Extended class name interface
+  use aliased 'My::Company::Namespace' => [ qw/Customer Supplier/ ];
+  my $cust = Customer->new;      # My::Company::Namespace::Customer
+  my $supp = Supplier->new;      # My::Company::Namespace::Supplier
+
+  use aliased {
+      base    => 'My::Company::Namespace',
+      modules => [ qw/Customer Supplier/ ],
+  };
+  my $cust = Customer->new;      # My::Company::Namespace::Customer
+  my $supp = Supplier->new;      # My::Company::Namespace::Supplier
+
+  use aliased {
+      base                => 'My::Company::Namespace',
+      Customer            => { version => 1.43 },
+      Preferred::Customer => {
+          alias   => 'Preferred',
+          version => 3.57,
+          imports => [ qw/some import param/ ],
+      },
+      Supplier            => {},
+  };
+  my $cust = Customer->new;
+  my $pref = Preferred->new;
+  my $supp = Supplier->new;
 
   # Variable interface
   use aliased;
@@ -286,6 +311,18 @@ For example:
 Note that any class method can be called on the shorter version of the class
 name, not just the constructor.
 
+=head3 Multiple Aliases
+
+Sometimes you may want to use the short names of a bunch of modules under a
+common namespace. For that, you can simply:
+
+  use aliased 'Some::Basket' => [ qw/Apple Orange Potato Pineapple/ ];
+  my $head = Potato->new;
+  my $orange = Orange->new( origin => 'Florida' );
+
+This way you can create short versions for a number of classes, in one single
+statement.
+
 =head2 Explicit Aliasing
 
 Sometimes two class names can cause a conflict (they both end with C<Customer>
@@ -334,6 +371,57 @@ Snippet 2 (equivalent to snippet 1):
 B<Note>:  remember, you cannot use import lists with L<Implicit Aliasing>.  As
 a result, you may simply prefer to only use L<Explicit Aliasing> as a matter
 of style.
+
+=head2 Extended Interface
+
+Eventually you may want to be more specific about the module being aliased,
+and for that you may use the extended interface:
+
+  use aliased {
+      'Some::Module::Name' => {
+          alias   => 'Shorty',
+          imports => [ qw(some func) ],
+          version => 1.54,
+      },
+      'Some::Other::Module' => {
+          alias => 'Other',
+      },
+      'Yet::Another::Module' => {},
+  };
+
+Each key of the hash reference may be a module name, with a (other) hash
+reference as its value.
+Within the module's hash, you can pass an B<alias>, a B<version> and a list
+of B<imports>. C<< Some::Module::Name >> above will be aliased as C<Shorty>,
+version 1.54 will be required, and the functions C<some> and C<func> will
+be imported into the calling namespace.
+All these parameters are optional: in the example above,
+C<< Yet::Another::Module >> will be simply aliased as C<Module>.
+
+Additionaly, you may specify two special keys instead of module names,
+C<base> and C<modules>:
+
+  use aliased {
+      base    => 'Some::Base::Space',
+      modules => [ qw/Moddie Muddie Maddie Meddie/ ],
+      Middie  => {
+          version => '3.010',
+      },
+  };
+
+The C<base> key will tell C<aliased> to use its value as a package prefix for
+any other module name in this statement. And the C<modules> key will indicate
+a list of modules to be batch-aliased.
+Thus, the example above creates aliases for the modules:
+
+  Some::Base::Space::Maddie
+  Some::Base::Space::Meddie
+  Some::Base::Space::Middie
+  Some::Base::Space::Moddie
+  Some::Base::Space::Muddie
+
+Additionaly, C<< Some::Base::Space::Middie >> will require version 3.010 at
+least.
 
 =head2 alias()
 
