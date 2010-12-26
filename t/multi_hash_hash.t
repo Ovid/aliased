@@ -4,13 +4,16 @@ use strict;
 
 use Test::More tests => 9;
 
-#
 # Testing the form:
 #
 # use aliased {
-#   'Some::Base::Pkg' => [ qw/Mod1 Mod2 Mod3/ ]
+#   base                => 'Some::Base::Pkg',
+#   modules             => [ qw/Mod1 Mod2 Mod3/ ],
+#   Module              => {},
+#   'Some::OtherModule' => {
+#       alias => 'MyAlias',
+#   },
 # };
-#
 
 BEGIN {
     chdir 't' if -d 't';

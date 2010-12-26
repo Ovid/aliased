@@ -2,15 +2,11 @@
 use warnings;
 use strict;
 
-use Test::More tests => 10;
+use Test::More tests => 8;
 
-#use Test::More qw/no_plan/;
-
-#
 # Testing the form:
 #
 # use aliased 'Some::Base::Pkg' => [ qw/Mod1 Mod2 Mod3/ ]
-#
 
 BEGIN {
     chdir 't' if -d 't';
@@ -30,9 +26,6 @@ eval q{ use aliased Really::Long::Module::Name => { must => 'blow' } };
 ok $@, 'a hash reference as 2nd param, this will not do!!';
 
 use aliased 'Really::Long::Module::Conflicting::Name' => 'C::Name', "echo";
-ok defined &main::echo, '... and import items should be handled correctly';
-is_deeply [ echo( [ 1, 2 ], 3 ) ], [ [ 1, 2 ], 3 ],
-  '... and exhibit the correct behavior';
 ok $name = C::Name->new,
 'We should be able to alias to different packages, even though that is really stupid';
 isa_ok $name, 'Really::Long::Module::Conflicting::Name',

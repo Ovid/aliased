@@ -2,7 +2,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 2;
+use Test::More tests => 3;
 
 #
 # Testing the form:
@@ -18,7 +18,9 @@ BEGIN {
 }
 
 eval qq( use aliased { 'Really::Long::Name' => { version => 4.50 } } );
+#diag( $@);
 ok $@, '... cannot alias with a non-existent minimum version of a module';
+like $@, qr/version\s+\S+\s+required/, '... with a proper error message';
 
 eval qq(
     use aliased {
