@@ -1,6 +1,6 @@
 package aliased;
 
-our $VERSION = '0.30_01';
+our $VERSION = '0.30_02';
 $VERSION = eval $VERSION;
 
 require Exporter;
@@ -14,17 +14,19 @@ sub _croak {
     Carp::croak(@_);
 }
 
+sub _export_level { 1 }
+
 sub import {
     my ( $class, $package, $alias, @import ) = @_;
 
     if ( @_ <= 1 ) {
-        $class->export_to_level(1);
+        $class->export_to_level( $class->_export_level );
         return;
     }
 
     my $callpack = caller(0);
     _load_alias( $package, $callpack, @import );
-    _make_alias( $package, $callpack, $alias );
+    $class->_make_alias( $package, $callpack, $alias );
 }
 
 sub _get_alias {
@@ -33,13 +35,18 @@ sub _get_alias {
     return $package;
 }
 
+sub _make_alias_sub {
+    my ( $class, $package ) = @_;
+    return sub () { $package };
+}
+
 sub _make_alias {
-    my ( $package, $callpack, $alias ) = @_;
+    my ( $class, $package, $callpack, $alias ) = @_;
 
     $alias ||= _get_alias($package);
 
     no strict 'refs';
-    *{ join q{::} => $callpack, $alias } = sub () { $package };
+    *{ join q{::} => $callpack, $alias } = $class->_make_alias_sub( $package );
 }
 
 sub _load_alias {
