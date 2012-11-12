@@ -2,9 +2,7 @@
 use warnings;
 use strict;
 
-use Test::More tests => 16;
-
-#use Test::More qw/no_plan/;
+use Test::More tests => 18;
 
 BEGIN {
     chdir 't' if -d 't';
@@ -46,3 +44,15 @@ foreach my $method (qw/foo bar baz/) {
     is &$method, $method, '... and it should behave as expected';
 }
 
+{
+  package My::Package;
+  use Test::More;
+
+  use aliased 'Really::Long::Module::Name';
+  my $name = Name->new;
+  isa_ok $name, 'Really::Long::Module::Name', '... a short alias works in a package';
+
+  use aliased 'Really::Long::Module::Name' => 'A::Name';
+  $name = A::Name->new;
+  isa_ok $name, 'Really::Long::Module::Name', '... a long alias works in a package';
+}
