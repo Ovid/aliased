@@ -1,6 +1,6 @@
 package aliased;
 
-our $VERSION = '0.30_02';
+our $VERSION = '0.31';
 $VERSION = eval $VERSION;
 
 require Exporter;
@@ -104,7 +104,7 @@ aliased - Use shorter versions of class names.
 
 =head1 VERSION
 
-0.30
+0.31
 
 =head1 SYNOPSIS
 

@@ -1,5 +1,8 @@
 Revision history for Perl extension aka.
 
+0.31  February 18, 2013
+      Bumped the number for a production release.
+
 0.30_01 January 3, 2010
       Added prefix() function. [rt#48289]
       Moved Test::More to build_requires [rt#48926]

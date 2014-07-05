@@ -19,3 +19,4 @@ t/lib/Really/Long/Name.pm
 t/lib/Really/Long/PackageName.pm
 xt/author/pod-coverage.t
 xt/author/pod.t
+META.json

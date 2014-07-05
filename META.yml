@@ -1,21 +1,22 @@
 ---
-name: aliased
-version: 0.30_01
+abstract: 'Use shorter versions of class names.'
 author:
-  - 'Curtis "Ovid" Poe <ovid@cpan.org>'
-abstract: Use shorter versions of class names.
-license: perl
-resources:
-  license: http://dev.perl.org/licenses/
+  - "Curtis \"Ovid\" Poe <ovid@cpan.org>"
 build_requires:
   Test::More: 0
 configure_requires:
-  Module::Build: 0.35
-provides:
-  aliased:
-    file: lib/aliased.pm
-    version: 0.30_01
-generated_by: Module::Build version 0.35
+  Module::Build: 0.40
+dynamic_config: 1
+generated_by: 'Module::Build version 0.4003, CPAN::Meta::Converter version 2.120630'
+license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
+name: aliased
+provides:
+  aliased:
+    file: lib/aliased.pm
+    version: 0.31
+resources:
+  license: http://dev.perl.org/licenses/
+version: 0.31
