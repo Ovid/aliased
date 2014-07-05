@@ -4,7 +4,6 @@ our $VERSION = '0.30_02';
 $VERSION = eval $VERSION;
 
 require Exporter;
-@ISA    = qw(Exporter);
 @EXPORT = qw(alias prefix);
 
 use strict;
@@ -15,12 +14,10 @@ sub _croak {
 }
 
 sub import {
-    my ( $class, $package, $alias, @import ) = @_;
+    # Without args, just export @EXPORT
+    goto &Exporter::import if @_ <= 1;
 
-    if ( @_ <= 1 ) {
-        $class->export_to_level(1);
-        return;
-    }
+    my ( $class, $package, $alias, @import ) = @_;
 
     my $callpack = caller(0);
     _load_alias( $package, $callpack, @import );
