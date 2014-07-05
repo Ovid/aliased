@@ -150,9 +150,9 @@ namespace to another, but it's a handy term.  Just keep in mind that this is
 done with a subroutine and not with typeglobs and weird namespace munging.)
 
 Note that this is B<only> for C<use>ing OO modules.  You cannot use this to
-load procedural modules.  See the L<Why OO Only?|Why OO Only?> section.  Also,
-don't let the version number fool you.  This code is ridiculously simple and
-is just fine for most use.
+load procedural modules.  See the L<Why OO Only?> section.  Also, don't let
+the version number fool you.  This code is ridiculously simple and is just
+fine for most use.
 
 =head2 Implicit Aliasing
 
@@ -231,12 +231,12 @@ list.
     my $alias = alias($class);
     my $alias = alias($class, @imports);
 
-alias() is an alternative to C<use aliased ...> which uses less magic and
+C<alias()> is an alternative to C<use aliased ...> which uses less magic and
 avoids some of the ambiguities.
 
-Like C<use aliased> it C<use>s the $class (pass in @imports, if given) but
-instead of providing an C<Alias> constant it simply returns a scalar set to
-the $class name.
+Like C<use aliased> it C<use>s the C<$class> (pass in C<@imports>, if given)
+but instead of providing an C<Alias> constant it simply returns a scalar set
+to the C<$class> name.
 
     my $thing = alias("Some::Thing::With::A::Long::Name");
 
@@ -252,7 +252,7 @@ when aliasing two similar names:
 
 and there is no magic constant exported into your namespace.
 
-The only caveat is loading of the $class happens at run time.  If $class
+The only caveat is loading of the $class happens at run time.  If C<$class>
 exports anything you might want to ensure it is loaded at compile time with:
 
     my $thing;
