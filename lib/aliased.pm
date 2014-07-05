@@ -20,7 +20,7 @@ sub import {
     my ( $class, $package, $alias, @import ) = @_;
 
     my $callpack = caller(0);
-    _load_alias( $package, $callpack, @import );
+    _load_original( $package, $callpack, @import );
     _make_alias( $package, $callpack, $alias );
 }
 
@@ -43,7 +43,7 @@ sub _make_alias {
     *{ $destination } = sub () { $package };
 }
 
-sub _load_alias {
+sub _load_original {
     my ( $package, $callpack, @import ) = @_;
 
     # We don't localize $SIG{__DIE__} here because we need to be careful about
@@ -72,7 +72,7 @@ sub alias {
     my ( $package, @import ) = @_;
 
     my $callpack = scalar caller(0);
-    return _load_alias( $package, $callpack, @import );
+    return _load_original( $package, $callpack, @import );
 }
 
 sub prefix {
@@ -81,10 +81,10 @@ sub prefix {
         my ($name) = @_;
         my $callpack = caller(0);
         if ( not @_ ) {
-            return _load_alias( $class, $callpack );
+            return _load_original( $class, $callpack );
         }
         elsif ( @_ == 1 && defined $name ) {
-            return _load_alias( "${class}::$name", $callpack );
+            return _load_original( "${class}::$name", $callpack );
         }
         else {
             _croak("Too many arguments to prefix('$class')");
