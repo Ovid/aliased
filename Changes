@@ -1,5 +1,9 @@
 Revision history for Perl extension aka.
 
+0.32  July 5, 2014
+      Don't inherit from Exporter (via Olivier Mengué)
+      Fix docs issues (via Grzegorz Rożniecki)
+
 0.31  February 18, 2013
       Bumped the number for a production release.
 
